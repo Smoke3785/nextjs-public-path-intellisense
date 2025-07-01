@@ -107,12 +107,6 @@ function providerFactory(
           const isDir = fs.statSync(full).isDirectory();
 
           const completionName = isDir ? name + "/" : name;
-          //   let completionSuffix = "";
-
-          //   if (isDir && ADD_COMPLETION_SUFFIX) {
-          //     completionSuffix = "/";
-          //   }
-
           const completionType = isDir
             ? vscode.CompletionItemKind.Folder
             : vscode.CompletionItemKind.File;
