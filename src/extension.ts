@@ -2,6 +2,9 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 
+// Configurable options
+const ADD_COMPLETION_SUFFIX = false;
+
 function nextConfigExists(root: string): boolean {
   return [
     "next.config.js",
@@ -27,13 +30,36 @@ function getNextRoot(folders?: vscode.WorkspaceFolder[]): string | null {
 }
 
 /**
- * Retrieves the the text before the cursor in the current line.
+ * Grab everything from the last '<' (that doesn't have a matching '>' yet)
+ * up to the cursor position, across multiple lines.
  */
-function getLinePrefix(
+function getTagPrefix(
   document: vscode.TextDocument,
   position: vscode.Position
 ): string {
-  return document.lineAt(position).text.slice(0, position.character);
+  let { line } = position;
+  let char = position.character;
+  let accumulated = "";
+  let foundOpen = false;
+
+  while (line >= 0 && !foundOpen) {
+    const textLine = document.lineAt(line).text;
+    const sliceEnd = line === position.line ? char : textLine.length;
+    const sub = textLine.slice(0, sliceEnd);
+    const lastOpen = sub.lastIndexOf("<");
+
+    if (lastOpen !== -1) {
+      // we found the start of the tag
+      accumulated = sub.slice(lastOpen) + accumulated;
+      foundOpen = true;
+    } else {
+      // prepend this entire line (plus newline) and keep going up
+      accumulated = sub + "\n" + accumulated;
+      line--;
+    }
+  }
+
+  return accumulated;
 }
 
 /**
@@ -62,7 +88,7 @@ function providerFactory(
     ],
     {
       provideCompletionItems: (document, position) => {
-        const linePrefix = getLinePrefix(document, position);
+        const linePrefix = getTagPrefix(document, position);
 
         const match = linePrefix.match(TAG_REGEX);
         if (!match) return;
@@ -81,7 +107,11 @@ function providerFactory(
           const isDir = fs.statSync(full).isDirectory();
 
           const completionName = isDir ? name + "/" : name;
-          const completionSuffix = isDir ? "/" : "";
+          //   let completionSuffix = "";
+
+          //   if (isDir && ADD_COMPLETION_SUFFIX) {
+          //     completionSuffix = "/";
+          //   }
 
           const completionType = isDir
             ? vscode.CompletionItemKind.Folder
@@ -92,7 +122,17 @@ function providerFactory(
             completionType
           );
 
-          item.insertText = name + completionSuffix;
+          // If a directory is selected, add a trailing slash then trigger the next suggestions.
+          if (isDir) {
+            item.insertText = name + "/";
+            item.command = {
+              command: "editor.action.triggerSuggest",
+              title: "Re-trigger suggestions",
+            };
+          } else {
+            item.insertText = name;
+          }
+
           return item;
         });
 
