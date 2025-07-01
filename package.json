@@ -3,9 +3,14 @@
   "displayName": "Next.js Public Path Intellisense",
   "description": "Provide path autocomplete for Next.js public/ absolute URLs in <Image>, <img>, <video>, <source> tags",
   "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Smoke3785/nextjs-public-path-intellisense.git"
+  },
   "author": {
     "name": "Owen Rossi-Keen",
-    "email": "owenrossikeen@iliad.dev"
+    "email": "owenrossikeen@iliad.dev",
+    "url": "https://iliad.dev/"
   },
   "engines": {
     "vscode": "^1.60.0"
