@@ -1,0 +1,29 @@
+{
+  "name": "nextjs-public-path-intellisense",
+  "displayName": "Next.js Public Path Intellisense",
+  "description": "Provide path autocomplete for Next.js public/ absolute URLs in <Image>, <img>, <video>, <source> tags",
+  "version": "0.1.0",
+  "author": {
+    "name": "Owen Rossi-Keen",
+    "email": "owenrossikeen@iliad.dev"
+  },
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "activationEvents": [
+    "workspaceContains:next.config.js",
+    "workspaceContains:public"
+  ],
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "tsc -p ./",
+    "develop": "tsc -p ./ --watch"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.0",
+    "typescript": "^4.5.0",
+    "vscode": "^1.1.37"
+  },
+  "dependencies": {}
+}
